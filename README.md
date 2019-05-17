@@ -13,7 +13,7 @@ To get a Sink use the Log::SinkFactory and connect them with the Logger afterwar
 
 The LogViewer:
 
-This is a GUI based Analysis tool that can load and filter log files created by the Logger and is the target for RPC connections from RPC sinks.
+This is a GUI based Analysis tool that can load and filter log files created by the Logger and is the target for RPC connections from RPC sinks. It used Qt5 so make sure to have a Qt installation.
 
 
 The TestClient:
