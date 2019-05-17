@@ -1,0 +1,14 @@
+[
+	uuid(a9d01938-2356-473e-a340-a17cd5283e74),
+	version(1.0)
+]
+interface LogViewerRPCInterface
+{
+	typedef [context_handle] void* LogViewerRPCInterface_ContextHandle;
+
+	LogViewerRPCInterface_ContextHandle LogViewerRPCInterface_connect([in] handle_t bindingHandle, [in, string] const char* processName, [in] unsigned long processID);
+
+	void LogViewerRPCInterface_addEntry([in] LogViewerRPCInterface_ContextHandle contextHandle, [in, string] const char* compiledMessage);
+
+	void LogViewerRPCInterface_disconnect([in, out] LogViewerRPCInterface_ContextHandle* contextHandle);
+}

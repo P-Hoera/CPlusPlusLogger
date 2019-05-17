@@ -1,0 +1,10 @@
+.vs/
+x64/
+LoggerAPI/
+LoggerTools/
+Doxygen/latex/
+Doxygen/html/
+GeneratedFiles/
+*.vcxproj.user
+RPCInterface/*.h
+RPCInterface/*.cpp
