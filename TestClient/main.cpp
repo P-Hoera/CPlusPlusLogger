@@ -114,48 +114,13 @@ void main()
 	for (int i = 0; i < 100000; ++i)
 	{
 		int loggerToUse = rand() % loggerVector.size();
-		int logLevelToUse = rand() % 6;
-		Log::LogLevel logLevel;
+		Log::LogLevel logLevelToUse = static_cast<Log::LogLevel>(rand() % 6);
 		int threadToUse = rand() % numberOfThreads;
-
-		switch (logLevelToUse)
-		{
-		case 0:
-		{
-			logLevel = Log::LogLevel::Fatal;
-			break;
-		}
-		case 1:
-		{
-			logLevel = Log::LogLevel::Error;
-			break;
-		}
-		case 2:
-		{
-			logLevel = Log::LogLevel::Warning;
-			break;
-		}
-		case 3:
-		{
-			logLevel = Log::LogLevel::Info;
-			break;
-		}
-		case 4:
-		{
-			logLevel = Log::LogLevel::Debug;
-			break;
-		}
-		case 5:
-		{
-			logLevel = Log::LogLevel::Trace;
-			break;
-		}
-		}
 
 		Entry entry;
 		entry.logger = loggerVector[loggerToUse];
-		entry.logLevel = logLevel;
-		entry.message = "Entry: " + std::to_string(i) + " Logger: " + loggerVector[loggerToUse]->getModuleName() + " Log Level: " + Log::logLevelToString(logLevel);
+		entry.logLevel = logLevelToUse;
+		entry.message = "Entry: " + std::to_string(i) + " Logger: " + loggerVector[loggerToUse]->getModuleName() + " Log Level: " + Log::logLevelToString(logLevelToUse);
 		loggerThreads[threadToUse].log(entry);
 	}
 
