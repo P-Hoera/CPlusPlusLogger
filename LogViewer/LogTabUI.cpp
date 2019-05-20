@@ -97,7 +97,7 @@ int LogTabUI::getSourceID()
 
 void LogTabUI::clearFilter()
 {
-	if (m_staticDataFilterActive == false && m_dynamicDataFilterActive == false)
+	if (m_logLevelFilerActive == false && m_moduleNameFilerActive == false && m_threadIDFilterActive == false)
 	{
 		return;
 	}
@@ -122,8 +122,9 @@ void LogTabUI::clearFilter()
 		m_ui.entriesTableView->setRowHidden(i, false);
 	}
 
-	m_staticDataFilterActive = false;
-	m_dynamicDataFilterActive = false;
+	m_logLevelFilerActive = false;
+	m_moduleNameFilerActive = false;
+	m_threadIDFilterActive = false;
 }
 
 void LogTabUI::updateFilterComboBoxesAndFilterEntriesTable(const QModelIndex& parent, int first, int last)
@@ -261,7 +262,7 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 	{
 		QStandardItem* item = new QStandardItem(entry);
 		item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		if (m_staticDataFilterActive)
+		if (m_moduleNameFilerActive)
 		{
 			item->setData(Qt::Unchecked, Qt::CheckStateRole);
 		}
@@ -276,7 +277,7 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 	{
 		QStandardItem* item = new QStandardItem(entry);
 		item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		if (m_dynamicDataFilterActive)
+		if (m_threadIDFilterActive)
 		{
 			item->setData(Qt::Unchecked, Qt::CheckStateRole);
 		}
@@ -294,8 +295,9 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 	QStringList threadIDFilter;
 	QStringList logLevelFilter;
 
-	m_staticDataFilterActive = false;
-	m_dynamicDataFilterActive = false;
+	m_logLevelFilerActive = false;
+	m_moduleNameFilerActive = false;
+	m_threadIDFilterActive = false;
 
 	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
 	{
@@ -305,7 +307,7 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 		}
 		else
 		{
-			m_staticDataFilterActive = true;
+			m_moduleNameFilerActive = true;
 		}
 	}
 
@@ -317,7 +319,7 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 		}
 		else
 		{
-			m_dynamicDataFilterActive = true;
+			m_threadIDFilterActive = true;
 		}
 	}
 
@@ -329,7 +331,7 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 		}
 		else
 		{
-			m_staticDataFilterActive = true;
+			m_logLevelFilerActive = true;
 		}
 	}
 

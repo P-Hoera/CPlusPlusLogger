@@ -55,6 +55,7 @@ private:
 	QStandardItemModel* m_threadIDComboBoxModel;
 	QStandardItemModel* m_moduleNameComboBoxModel;
 	int m_sourceID;
-	bool m_staticDataFilterActive = false;
-	bool m_dynamicDataFilterActive = false;
+	bool m_logLevelFilerActive = false;
+	bool m_moduleNameFilerActive = false;
+	bool m_threadIDFilterActive = false;
 };
