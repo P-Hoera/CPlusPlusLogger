@@ -8,3 +8,4 @@ GeneratedFiles/
 *.vcxproj.user
 RPCInterface/*.h
 RPCInterface/*.cpp
+TestClient/testfile.txt
