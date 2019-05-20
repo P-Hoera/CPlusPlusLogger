@@ -204,6 +204,7 @@ void LogTabUI::setUpFilterComboBoxes()
 	}
 
 	m_ui.logLevelComboBox->setModel(m_logLevelComboBoxModel);
+	m_ui.logLevelComboBox->view()->setTextElideMode(Qt::ElideNone);
 	connect(m_logLevelComboBoxModel, &QStandardItemModel::dataChanged, this, &LogTabUI::filterEntriesTable);
 
 	m_moduleNameComboBoxModel = new QStandardItemModel(this);
@@ -212,6 +213,7 @@ void LogTabUI::setUpFilterComboBoxes()
 	m_moduleNameComboBoxModel->setItem(0, 0, item);
 
 	m_ui.moduleNameComboBox->setModel(m_moduleNameComboBoxModel);
+	m_ui.moduleNameComboBox->view()->setTextElideMode(Qt::ElideNone);
 	connect(m_moduleNameComboBoxModel, &QStandardItemModel::dataChanged, this, &LogTabUI::filterEntriesTable);
 
 	m_threadIDComboBoxModel = new QStandardItemModel(this);
@@ -220,6 +222,7 @@ void LogTabUI::setUpFilterComboBoxes()
 	m_threadIDComboBoxModel->setItem(0, 0, item);
 
 	m_ui.threadIDComboBox->setModel(m_threadIDComboBoxModel);
+	m_ui.threadIDComboBox->view()->setTextElideMode(Qt::ElideNone);
 	connect(m_threadIDComboBoxModel, &QStandardItemModel::dataChanged, this, &LogTabUI::filterEntriesTable);
 }
 
@@ -250,13 +253,26 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 		if (!existingModuleNames.contains(moduleName) && !newModuleNames.contains(moduleName))
 		{
 			newModuleNames.append(moduleName);
+			int newModuleNameWidth = m_ui.moduleNameComboBox->view()->fontMetrics().width(moduleName);
+			if (newModuleNameWidth > m_moduleNameWidth)
+			{
+				m_moduleNameWidth = newModuleNameWidth;
+			}
 		}
 
 		if (!existingThreadIDs.contains(threadID) && !newThreadIDs.contains(threadID))
 		{
 			newThreadIDs.append(threadID);
+			int newThreadIDWidth = m_ui.threadIDComboBox->view()->fontMetrics().width(threadID);
+			if (newThreadIDWidth > m_threadIDWidth)
+			{
+				m_threadIDWidth = newThreadIDWidth;
+			}
 		}
 	}
+
+	m_ui.moduleNameComboBox->view()->setMinimumWidth(m_moduleNameWidth + 45);
+	m_ui.threadIDComboBox->view()->setMinimumWidth(m_threadIDWidth + 45);
 
 	for (const auto& entry : newModuleNames)
 	{

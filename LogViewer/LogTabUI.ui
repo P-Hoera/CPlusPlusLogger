@@ -102,13 +102,25 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QComboBox" name="logLevelComboBox"/>
+      <widget class="QComboBox" name="logLevelComboBox">
+       <property name="maxVisibleItems">
+        <number>30</number>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="moduleNameComboBox"/>
+      <widget class="QComboBox" name="moduleNameComboBox">
+       <property name="maxVisibleItems">
+        <number>30</number>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="threadIDComboBox"/>
+      <widget class="QComboBox" name="threadIDComboBox">
+       <property name="maxVisibleItems">
+        <number>30</number>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="clearFilterPushButton">

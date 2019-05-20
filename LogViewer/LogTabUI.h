@@ -58,4 +58,6 @@ private:
 	bool m_logLevelFilerActive = false;
 	bool m_moduleNameFilerActive = false;
 	bool m_threadIDFilterActive = false;
+	int m_moduleNameWidth = 0;
+	int m_threadIDWidth = 0;
 };
