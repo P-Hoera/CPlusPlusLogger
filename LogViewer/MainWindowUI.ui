@@ -29,15 +29,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuSaveActiveTabToLogFile">
-     <property name="title">
-      <string>Save active Tab to Log File</string>
-     </property>
-     <addaction name="actionAllEntries"/>
-     <addaction name="actionOnlyVisibleEntries"/>
-    </widget>
     <addaction name="actionOpenLogFile"/>
-    <addaction name="menuSaveActiveTabToLogFile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

@@ -70,30 +70,6 @@ void MainWindowUI::openLogFile()
 	}
 }
 
-void MainWindowUI::saveActiveTabToFileAllEntries()
-{
-	saveActiveTabToFile(SaveMode::SaveAllEntries);
-}
-
-void MainWindowUI::saveActiveTabToFileOnlyVisibleEntries()
-{
-	saveActiveTabToFile(SaveMode::SaveOnlyVisibleEntries);
-}
-
-void MainWindowUI::saveActiveTabToFile(const SaveMode saveMode)
-{
-	QString fileName = QFileDialog::getSaveFileName(this, "Please choose File to save to.");
-
-	if (fileName != nullptr)
-	{
-		std::string fileNameString = QDir::toNativeSeparators(fileName).toStdString();
-
-		LogTabUI* logTab = dynamic_cast<LogTabUI*>(m_tabWidget->currentWidget());
-
-		logTab->saveToFile(fileNameString, saveMode);
-	}
-}
-
 void MainWindowUI::about()
 {
 	QMessageBox::about(this, "About", "LogViewer Version 1.0");
@@ -154,16 +130,6 @@ void MainWindowUI::closeTab(int index)
 	delete tab;
 }
 
-void MainWindowUI::updateSaveFileMenu(int index)
-{
-	if (index == -1)
-	{
-		m_ui.menuSaveActiveTabToLogFile->setDisabled(true);
-		return;
-	}
-
-	m_ui.menuSaveActiveTabToLogFile->setDisabled(false);
-}
 /*
 void MainWindowUI::closeEvent(QCloseEvent* event)
 {
@@ -181,15 +147,10 @@ void MainWindowUI::setUpTabWidget()
 	m_ui.centralWidget->layout()->addWidget(m_tabWidget);
 	m_tabWidget->setTabsClosable(true);
 	connect(m_tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindowUI::closeTab, Qt::QueuedConnection);
-	connect(m_tabWidget, &QTabWidget::currentChanged, this, &MainWindowUI::updateSaveFileMenu);
 }
 
 void MainWindowUI::setUpMenuBar()
 {
 	connect(m_ui.actionOpenLogFile, &QAction::triggered, this, &MainWindowUI::openLogFile);
-	connect(m_ui.actionAllEntries, &QAction::triggered, this, &MainWindowUI::saveActiveTabToFileAllEntries);
-	connect(m_ui.actionOnlyVisibleEntries, &QAction::triggered, this, &MainWindowUI::saveActiveTabToFileOnlyVisibleEntries);
 	connect(m_ui.actionAbout, &QAction::triggered, this, &MainWindowUI::about);
-
-	m_ui.menuSaveActiveTabToLogFile->setDisabled(true);
 }

@@ -3,5 +3,5 @@
 enum class SaveMode
 {
 	SaveAllEntries,
-	SaveOnlyVisibleEntries
+	SaveVisibleEntries
 };

@@ -3,7 +3,6 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_MainWindowUI.h"
 
-#include "SaveMode.h"
 #include "SourceType.h"
 #include "UIConnectionInterface.h"
 #include "SourceProcessor.h"
@@ -46,10 +45,6 @@ Q_SIGNALS:
 private Q_SLOT:
 	void openLogFile();
 
-	void saveActiveTabToFileAllEntries();
-
-	void saveActiveTabToFileOnlyVisibleEntries();
-
 	void about();
 
 	void openSourceSlot();
@@ -60,8 +55,6 @@ private Q_SLOT:
 
 	void closeTab(int index);
 
-	void updateSaveFileMenu(int index);
-
 protected:
 	//virtual void closeEvent(QCloseEvent* event) override;
 
@@ -69,8 +62,6 @@ private:
 	void setUpTabWidget();
 
 	void setUpMenuBar();
-
-	void saveActiveTabToFile(const SaveMode saveMode);
 
 	Ui::MainWindowUI m_ui;
 	QTabWidget* m_tabWidget;

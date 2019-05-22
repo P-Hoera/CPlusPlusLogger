@@ -2,6 +2,7 @@
 
 #include "LogLevelQColor.h"
 
+#include <qfiledialog.h>
 #include <qmessagebox.h>
 #include <qthread.h>
 #include <fstream>
@@ -17,51 +18,8 @@ LogTabUI::LogTabUI(QWidget* parent, const SourceType sourceType, const std::stri
 
 	connect(m_ui.clearFilterPushButton, &QPushButton::clicked, this, &LogTabUI::clearFilter);
 	connect(m_logEntryTableModel, &LogEntryTableModel::rowsInserted, this, &LogTabUI::updateFilterComboBoxesAndFilterEntriesTable);
-}
-
-void LogTabUI::saveToFile(const std::string fileName, const SaveMode saveMode)
-{
-	std::ofstream file(fileName);
-
-	if (!file.is_open())
-	{
-		QMessageBox::critical(this, "Failed to open File.", "Could not open the file.");
-		return;
-	}
-
-	int entryRows = m_logEntryTableModel->rowCount();
-
-	m_ui.progressBarSavingToFile->setRange(0, entryRows - 1);
-	m_ui.progressBarSavingToFile->setValue(0);
-
-	setSaveToFileElementsVisible(true);
-
-	switch (saveMode)
-	{
-	case SaveMode::SaveAllEntries:
-	{
-		for (int i = 0; i < entryRows; ++i)
-		{
-			file << m_logEntryTableModel->getCompiledLogEntry(i);
-			m_ui.progressBarSavingToFile->setValue(i);
-		}
-		break;
-	}
-	case SaveMode::SaveOnlyVisibleEntries:
-	{
-		for (int i = 0; i < entryRows; ++i)
-		{
-			if (!m_ui.entriesTableView->isRowHidden(i))
-			{
-				file << m_logEntryTableModel->getCompiledLogEntry(i);
-			}
-			m_ui.progressBarSavingToFile->setValue(i);
-		}
-		break;
-	}
-	}
-
-	setSaveToFileElementsVisible(false);
+	connect(m_ui.saveAllEntriesToFile, &QPushButton::clicked, this, &LogTabUI::saveAllEntriesToFile);
+	connect(m_ui.saveVisibleEntriesToFile, &QPushButton::clicked, this, &LogTabUI::saveVisibleEntriesToFile);
 }
 
 void LogTabUI::addLogEntries(const std::vector<std::shared_ptr<QtLogEntry>>& logEntries)
@@ -138,6 +96,68 @@ void LogTabUI::filterEntriesTable()
 	partiallyFilterEntriesTable(0, m_logEntryTableModel->rowCount() - 1);
 }
 
+void LogTabUI::saveAllEntriesToFile()
+{
+	saveToFile(SaveMode::SaveAllEntries);
+}
+
+void LogTabUI::saveVisibleEntriesToFile()
+{
+	saveToFile(SaveMode::SaveVisibleEntries);
+}
+
+void LogTabUI::saveToFile(const SaveMode saveMode)
+{
+	QString fileName = QFileDialog::getSaveFileName(this, "Please choose File to save to.");
+
+	if (fileName == nullptr)
+	{
+		return;
+	}
+
+	std::ofstream file(QDir::toNativeSeparators(fileName).toStdString());
+
+	if (!file.is_open())
+	{
+		QMessageBox::critical(this, "Failed to open File.", "Could not open the file.");
+		return;
+	}
+
+	int entryRows = m_logEntryTableModel->rowCount();
+
+	m_ui.progressBarSavingToFile->setRange(0, entryRows - 1);
+	m_ui.progressBarSavingToFile->setValue(0);
+
+	setSaveToFileElementsVisible(true);
+
+	switch (saveMode)
+	{
+	case SaveMode::SaveAllEntries:
+	{
+		for (int i = 0; i < entryRows; ++i)
+		{
+			file << m_logEntryTableModel->getCompiledLogEntry(i);
+			m_ui.progressBarSavingToFile->setValue(i);
+		}
+		break;
+	}
+	case SaveMode::SaveVisibleEntries:
+	{
+		for (int i = 0; i < entryRows; ++i)
+		{
+			if (!m_ui.entriesTableView->isRowHidden(i))
+			{
+				file << m_logEntryTableModel->getCompiledLogEntry(i);
+			}
+			m_ui.progressBarSavingToFile->setValue(i);
+		}
+		break;
+	}
+	}
+
+	setSaveToFileElementsVisible(false);
+}
+
 void LogTabUI::setUpTableViewModel()
 {
 	m_logEntryTableModel = new LogEntryTableModel(this);
@@ -181,7 +201,6 @@ void LogTabUI::setSaveToFileElementsVisible(const bool visible)
 {
 	m_ui.labelSavingToFile->setVisible(visible);
 	m_ui.progressBarSavingToFile->setVisible(visible);
-	m_ui.line_2->setVisible(visible);
 }
 
 void LogTabUI::setUpFilterComboBoxes()

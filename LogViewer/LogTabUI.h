@@ -19,8 +19,6 @@ class LogTabUI : public QWidget
 public:
 	LogTabUI(QWidget* parent, const SourceType sourceType, const std::string& sourceName, const int sourceID);
 
-	void saveToFile(const std::string fileName, const SaveMode saveMode);
-
 	void addLogEntries(const std::vector<std::shared_ptr<QtLogEntry>>& logEntries);
 
 	void closeSource();
@@ -34,7 +32,13 @@ private Q_SLOT:
 
 	void filterEntriesTable();
 
+	void saveAllEntriesToFile();
+
+	void saveVisibleEntriesToFile();
+
 private:
+	void saveToFile(const SaveMode saveMode);
+
 	void setUpTableViewModel();
 
 	void setUpSourceTypeAndStatusLabel();
