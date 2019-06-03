@@ -68,14 +68,14 @@
     </layout>
    </item>
    <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QVBoxLayout" name="verticalLayout_4">
-     <item>
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
@@ -128,58 +128,68 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_5">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QComboBox" name="logLevelComboBox">
+       <property name="maxVisibleItems">
+        <number>30</number>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QComboBox" name="logLevelComboBox">
-         <property name="maxVisibleItems">
-          <number>30</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="moduleNameComboBox">
-         <property name="maxVisibleItems">
-          <number>30</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="threadIDComboBox">
-         <property name="maxVisibleItems">
-          <number>30</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="clearFilterPushButton">
-         <property name="text">
-          <string>Clear Filter</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <widget class="QComboBox" name="moduleNameComboBox">
+       <property name="maxVisibleItems">
+        <number>30</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="threadIDComboBox">
+       <property name="maxVisibleItems">
+        <number>30</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="clearFilterPushButton">
+       <property name="text">
+        <string>Clear Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="loadFilterButton">
+       <property name="text">
+        <string>Load Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="saveFilterButton">
+       <property name="text">
+        <string>Save Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

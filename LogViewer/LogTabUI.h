@@ -28,6 +28,10 @@ public:
 private Q_SLOT:
 	void clearFilter();
 
+	void loadFilter();
+
+	void saveFilter();
+
 	void updateFilterComboBoxesAndFilterEntriesTable(const QModelIndex& parent, int first, int last);
 
 	void filterEntriesTable();
