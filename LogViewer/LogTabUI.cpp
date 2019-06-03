@@ -8,6 +8,7 @@
 #include <qjsondocument.h>
 #include <qjsonarray.h>
 #include <qjsonobject.h>
+#include <qhash.h>
 #include <fstream>
 
 LogTabUI::LogTabUI(QWidget* parent, const SourceType sourceType, const std::string& sourceName, const int sourceID)
@@ -398,10 +399,12 @@ void LogTabUI::setUpTableViewModel()
 {
 	m_logEntryTableModel = new LogEntryTableModel(this);
 	m_ui.entriesTableView->setModel(m_logEntryTableModel);
+	m_ui.entriesTableView->verticalHeader()->hide();
 	m_ui.entriesTableView->resizeColumnsToContents();
-	int columnWidth = m_ui.entriesTableView->columnWidth(0);
+	int columnWidth = m_ui.entriesTableView->columnWidth(1);
 	columnWidth = 2.2f * columnWidth;
-	m_ui.entriesTableView->setColumnWidth(0, columnWidth);
+	m_ui.entriesTableView->setColumnWidth(1, columnWidth);
+	m_ui.entriesTableView->setColumnWidth(0, 1.5f * m_ui.entriesTableView->columnWidth(0));
 	m_ui.entriesTableView->horizontalHeader()->setStretchLastSection(true);
 	m_ui.entriesTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
@@ -562,9 +565,9 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 
 void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 {
-	QStringList moduleNameFilter;
-	QStringList threadIDFilter;
-	QStringList logLevelFilter;
+	QHash<QString, bool> moduleNameFilter;
+	QHash<QString, bool> threadIDFilter;
+	QHash<QString, bool> logLevelFilter;
 
 	m_logLevelFilerActive = false;
 	m_moduleNameFilerActive = false;
@@ -574,7 +577,7 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 	{
 		if (m_moduleNameComboBoxModel->item(i)->checkState() == Qt::Checked)
 		{
-			moduleNameFilter.append(m_moduleNameComboBoxModel->item(i)->text());
+			moduleNameFilter.insert(m_moduleNameComboBoxModel->item(i)->text(), true);
 		}
 		else
 		{
@@ -586,7 +589,7 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 	{
 		if (m_threadIDComboBoxModel->item(i)->checkState() == Qt::Checked)
 		{
-			threadIDFilter.append(m_threadIDComboBoxModel->item(i)->text());
+			threadIDFilter.insert(m_threadIDComboBoxModel->item(i)->text(), true);
 		}
 		else
 		{
@@ -598,7 +601,7 @@ void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
 	{
 		if (m_logLevelComboBoxModel->item(i)->checkState() == Qt::Checked)
 		{
-			logLevelFilter.append(m_logLevelComboBoxModel->item(i)->text());
+			logLevelFilter.insert(m_logLevelComboBoxModel->item(i)->text(), true);
 		}
 		else
 		{

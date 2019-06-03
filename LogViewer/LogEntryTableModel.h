@@ -28,11 +28,12 @@ public:
 private:
 	void increaseContainerSize(const int newSize);
 
-	static const int m_timeStampColumn = 0;
-	static const int m_logLevelColumn = 1;
-	static const int m_moduleNameColumn = 2;
-	static const int m_threadIDColumn = 3;
-	static const int m_messageColumn = 4;
-	static const int m_totalColumns = 5;
+	static const int m_lineNumberColumn = 0;
+	static const int m_timeStampColumn = 1;
+	static const int m_logLevelColumn = 2;
+	static const int m_moduleNameColumn = 3;
+	static const int m_threadIDColumn = 4;
+	static const int m_messageColumn = 5;
+	static const int m_totalColumns = 6;
 	std::vector<std::shared_ptr<QtLogEntry>> m_rawModelData;
 };

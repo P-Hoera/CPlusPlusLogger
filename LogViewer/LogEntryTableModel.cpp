@@ -28,6 +28,8 @@ QVariant LogEntryTableModel::data(const QModelIndex& index, int role) const
 	{
 		switch (column)
 		{
+		case m_lineNumberColumn:
+			return QString::number(row + 1);
 		case m_timeStampColumn:
 			return entry->getTimeStampQString();
 		case m_logLevelColumn:
@@ -43,6 +45,10 @@ QVariant LogEntryTableModel::data(const QModelIndex& index, int role) const
 	else if (role == Qt::BackgroundRole)
 	{
 		return entry->getBackgroundQBrush();
+	}
+	else if (role == Qt::TextAlignmentRole && column == m_lineNumberColumn)
+	{
+		return (Qt::AlignRight | Qt::AlignVCenter);
 	}
 
 	return QVariant();
@@ -91,6 +97,8 @@ QVariant LogEntryTableModel::headerData(int section, Qt::Orientation orientation
 	{
 		switch (section)
 		{
+		case m_lineNumberColumn:
+			return QString("Line");
 		case m_timeStampColumn:
 			return QString("Timestamp");
 		case m_logLevelColumn:
