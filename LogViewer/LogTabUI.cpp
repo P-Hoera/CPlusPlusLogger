@@ -486,20 +486,17 @@ void LogTabUI::setUpFilterComboBoxes()
 
 void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 {
-	QStringList newModuleNames;
-	QStringList newThreadIDs;
-
-	QStringList existingModuleNames;
-	QStringList existingThreadIDs;
+	QHash<QString, bool> moduleNames;
+	QHash<QString, bool> threadIDs;
 
 	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
 	{
-		existingModuleNames.append(m_moduleNameComboBoxModel->item(i)->text());
+		moduleNames.insert(m_moduleNameComboBoxModel->item(i)->text(), true);
 	}
 
 	for (int i = 1; i < m_threadIDComboBoxModel->rowCount(); ++i)
 	{
-		existingThreadIDs.append(m_threadIDComboBoxModel->item(i)->text());
+		threadIDs.insert(m_threadIDComboBoxModel->item(i)->text(), true);
 	}
 
 	for (int i = first; i <= last; ++i)
@@ -508,9 +505,22 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 		const QString& moduleName = entry.getModuleNameQString();
 		const QString& threadID = entry.getThreadIDQString();
 
-		if (!existingModuleNames.contains(moduleName) && !newModuleNames.contains(moduleName))
+		if (!moduleNames.contains(moduleName))
 		{
-			newModuleNames.append(moduleName);
+			moduleNames.insert(moduleName, true);
+
+			QStandardItem* item = new QStandardItem(moduleName);
+			item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+			if (m_moduleNameFilerActive)
+			{
+				item->setData(Qt::Unchecked, Qt::CheckStateRole);
+			}
+			else
+			{
+				item->setData(Qt::Checked, Qt::CheckStateRole);
+			}
+			m_moduleNameComboBoxModel->appendRow(item);
+
 			int newModuleNameWidth = m_ui.moduleNameComboBox->view()->fontMetrics().width(moduleName);
 			if (newModuleNameWidth > m_moduleNameWidth)
 			{
@@ -518,9 +528,22 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 			}
 		}
 
-		if (!existingThreadIDs.contains(threadID) && !newThreadIDs.contains(threadID))
+		if (!threadIDs.contains(threadID))
 		{
-			newThreadIDs.append(threadID);
+			threadIDs.insert(threadID, true);
+
+			QStandardItem* item = new QStandardItem(threadID);
+			item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+			if (m_threadIDFilterActive)
+			{
+				item->setData(Qt::Unchecked, Qt::CheckStateRole);
+			}
+			else
+			{
+				item->setData(Qt::Checked, Qt::CheckStateRole);
+			}
+			m_threadIDComboBoxModel->appendRow(item);
+
 			int newThreadIDWidth = m_ui.threadIDComboBox->view()->fontMetrics().width(threadID);
 			if (newThreadIDWidth > m_threadIDWidth)
 			{
@@ -531,36 +554,6 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 
 	m_ui.moduleNameComboBox->view()->setMinimumWidth(m_moduleNameWidth + 45);
 	m_ui.threadIDComboBox->view()->setMinimumWidth(m_threadIDWidth + 45);
-
-	for (const auto& entry : newModuleNames)
-	{
-		QStandardItem* item = new QStandardItem(entry);
-		item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		if (m_moduleNameFilerActive)
-		{
-			item->setData(Qt::Unchecked, Qt::CheckStateRole);
-		}
-		else
-		{
-			item->setData(Qt::Checked, Qt::CheckStateRole);
-		}
-		m_moduleNameComboBoxModel->appendRow(item);
-	}
-
-	for (const auto& entry : newThreadIDs)
-	{
-		QStandardItem* item = new QStandardItem(entry);
-		item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		if (m_threadIDFilterActive)
-		{
-			item->setData(Qt::Unchecked, Qt::CheckStateRole);
-		}
-		else
-		{
-			item->setData(Qt::Checked, Qt::CheckStateRole);
-		}
-		m_threadIDComboBoxModel->appendRow(item);
-	}
 }
 
 void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
