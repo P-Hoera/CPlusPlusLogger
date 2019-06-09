@@ -119,32 +119,14 @@ void LogTabUI::loadFilter()
 		logLevelObject = rootObject["LogLevel"].toObject();
 	}
 
-	QJsonArray logLevelEntriesArray;
-
-	if (logLevelObject.contains("LogLevelEntries") && logLevelObject["LogLevelEntries"].isArray())
-	{
-		logLevelEntriesArray = logLevelObject["LogLevelEntries"].toArray();
-	}
-
-	QJsonObject logLevelVisibilityObject;
-
-	if (logLevelObject.contains("LogLevelVisibility") && logLevelObject["LogLevelVisibility"].isObject())
-	{
-		logLevelVisibilityObject = logLevelObject["LogLevelVisibility"].toObject();
-	}
-
 	std::vector<std::pair<QString, bool>> logLevelData;
 
-	for (const auto& entry : logLevelEntriesArray)
+	for (const auto& entry : logLevelObject.keys())
 	{
-		if (entry.isString())
+		if (logLevelObject[entry].isBool())
 		{
-			QString value = entry.toString();
-			if (logLevelVisibilityObject.contains(value) && logLevelVisibilityObject[value].isBool())
-			{
-				bool visibility = logLevelVisibilityObject[value].toBool();
-				logLevelData.push_back({ value, visibility });
-			}
+			bool visibility = logLevelObject[entry].toBool();
+			logLevelData.push_back({ entry, visibility });
 		}
 	}
 
@@ -155,32 +137,14 @@ void LogTabUI::loadFilter()
 		moduleNameObject = rootObject["ModuleName"].toObject();
 	}
 
-	QJsonArray moduleNameEntriesArray;
-
-	if (moduleNameObject.contains("ModuleNameEntries") && moduleNameObject["ModuleNameEntries"].isArray())
-	{
-		moduleNameEntriesArray = moduleNameObject["ModuleNameEntries"].toArray();
-	}
-
-	QJsonObject moduleNameVisibilityObject;
-
-	if (moduleNameObject.contains("ModuleNameVisibility") && moduleNameObject["ModuleNameVisibility"].isObject())
-	{
-		moduleNameVisibilityObject = moduleNameObject["ModuleNameVisibility"].toObject();
-	}
-
 	std::vector<std::pair<QString, bool>> moduleNameData;
 
-	for (const auto& entry : moduleNameEntriesArray)
+	for (const auto& entry : moduleNameObject.keys())
 	{
-		if (entry.isString())
+		if (moduleNameObject[entry].isBool())
 		{
-			QString value = entry.toString();
-			if (moduleNameVisibilityObject.contains(value) && moduleNameVisibilityObject[value].isBool())
-			{
-				bool visibility = moduleNameVisibilityObject[value].toBool();
-				moduleNameData.push_back({ value, visibility });
-			}
+			bool visibility = moduleNameObject[entry].toBool();
+			moduleNameData.push_back({ entry, visibility });
 		}
 	}
 
@@ -266,8 +230,7 @@ void LogTabUI::saveFilter()
 
 	rootObject["Version"] = 1;
 
-	QJsonArray logLevelEntriesArray;
-	QJsonObject logLevelVisibilityObject;
+	QJsonObject logLevelObject;
 
 	for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
 	{
@@ -281,17 +244,10 @@ void LogTabUI::saveFilter()
 			isChecked = false;
 		}
 
-		logLevelVisibilityObject[m_logLevelComboBoxModel->item(i)->text()] = isChecked;
-		logLevelEntriesArray.append(m_logLevelComboBoxModel->item(i)->text());
+		logLevelObject[m_logLevelComboBoxModel->item(i)->text()] = isChecked;
 	}
 
-	QJsonObject logLevelObject;
-
-	logLevelObject["LogLevelEntries"] = logLevelEntriesArray;
-	logLevelObject["LogLevelVisibility"] = logLevelVisibilityObject;
-
-	QJsonArray moduleNameEntriesArray;
-	QJsonObject moduleNameVisibilityObject;
+	QJsonObject moduleNameObject;
 
 	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
 	{
@@ -305,14 +261,8 @@ void LogTabUI::saveFilter()
 			isChecked = false;
 		}
 
-		moduleNameVisibilityObject[m_moduleNameComboBoxModel->item(i)->text()] = isChecked;
-		moduleNameEntriesArray.append(m_moduleNameComboBoxModel->item(i)->text());
+		moduleNameObject[m_moduleNameComboBoxModel->item(i)->text()] = isChecked;
 	}
-	
-	QJsonObject moduleNameObject;
-
-	moduleNameObject["ModuleNameEntries"] = moduleNameEntriesArray;
-	moduleNameObject["ModuleNameVisibility"] = moduleNameVisibilityObject;
 
 	rootObject["LogLevel"] = logLevelObject;
 	rootObject["ModuleName"] = moduleNameObject;
