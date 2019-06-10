@@ -6,6 +6,8 @@
 
 class LogEntryTableModel : public QAbstractTableModel
 {
+	Q_OBJECT
+
 public:
 	LogEntryTableModel(QObject* parent = nullptr);
 

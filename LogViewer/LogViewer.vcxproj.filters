@@ -68,6 +68,9 @@
     <QtMoc Include="LogTabUI.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="LogEntryTableModel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="MainWindowUI.ui">
@@ -102,9 +105,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UIConnectionInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LogEntryTableModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QtLogEntry.h">

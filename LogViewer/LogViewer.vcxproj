@@ -153,7 +153,10 @@ XCOPY "$(QTDIR)\bin\Qt5Widgets.dll" "$(SolutionDir)LoggerTools\" /c /q /y</Comma
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LogEntryTableModel.h" />
+    <QtMoc Include="LogEntryTableModel.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
     <ClInclude Include="LogFileLoader.h" />
     <ClInclude Include="LogLevelQColor.h" />
     <ClInclude Include="LogViewerRPCInterface.h" />
