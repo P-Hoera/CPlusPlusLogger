@@ -23,7 +23,7 @@ LogTabUI::LogTabUI(QWidget* parent, const SourceType sourceType, const std::stri
 	connect(m_ui.clearFilterPushButton, &QPushButton::clicked, this, &LogTabUI::clearFilter);
 	connect(m_ui.loadFilterButton, &QPushButton::clicked, this, &LogTabUI::loadFilter);
 	connect(m_ui.saveFilterButton, &QPushButton::clicked, this, &LogTabUI::saveFilter);
-	connect(m_logEntryTableModel, &LogEntryTableModel::rowsInserted, this, &LogTabUI::updateFilterComboBoxesAndFilterEntriesTable);
+	connect(m_logEntryTableModel, &LogEntryTableModel::rowsAppendedUnfiltered, this, &LogTabUI::updateFilterComboBoxes);
 	connect(m_ui.saveAllEntriesToFile, &QPushButton::clicked, this, &LogTabUI::saveAllEntriesToFile);
 	connect(m_ui.saveVisibleEntriesToFile, &QPushButton::clicked, this, &LogTabUI::saveVisibleEntriesToFile);
 }
@@ -81,10 +81,7 @@ void LogTabUI::clearFilter()
 		m_logLevelComboBoxModel->item(i)->setData(Qt::Checked, Qt::CheckStateRole);
 	}
 
-	for (int i = 0; i < m_logEntryTableModel->rowCount(); ++i)
-	{
-		m_ui.entriesTableView->setRowHidden(i, false);
-	}
+	m_logEntryTableModel->clearFilter();
 
 	m_logLevelFilerActive = false;
 	m_moduleNameFilerActive = false;
@@ -272,15 +269,53 @@ void LogTabUI::saveFilter()
 	file.write(jsonDocument.toJson());
 }
 
-void LogTabUI::updateFilterComboBoxesAndFilterEntriesTable(const QModelIndex& parent, int first, int last)
-{
-	updateFilterComboBoxes(first, last);
-	partiallyFilterEntriesTable(first, last);
-}
-
 void LogTabUI::filterEntriesTable()
 {
-	partiallyFilterEntriesTable(0, m_logEntryTableModel->rowCount() - 1);
+	QHash<QString, bool> moduleNameFilter;
+	QHash<QString, bool> threadIDFilter;
+	QHash<QString, bool> logLevelFilter;
+
+	m_logLevelFilerActive = false;
+	m_moduleNameFilerActive = false;
+	m_threadIDFilterActive = false;
+
+	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
+	{
+		if (m_moduleNameComboBoxModel->item(i)->checkState() == Qt::Checked)
+		{
+			moduleNameFilter.insert(m_moduleNameComboBoxModel->item(i)->text(), true);
+		}
+		else
+		{
+			m_moduleNameFilerActive = true;
+		}
+	}
+
+	for (int i = 1; i < m_threadIDComboBoxModel->rowCount(); ++i)
+	{
+		if (m_threadIDComboBoxModel->item(i)->checkState() == Qt::Checked)
+		{
+			threadIDFilter.insert(m_threadIDComboBoxModel->item(i)->text(), true);
+		}
+		else
+		{
+			m_threadIDFilterActive = true;
+		}
+	}
+
+	for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
+	{
+		if (m_logLevelComboBoxModel->item(i)->checkState() == Qt::Checked)
+		{
+			logLevelFilter.insert(m_logLevelComboBoxModel->item(i)->text(), true);
+		}
+		else
+		{
+			m_logLevelFilerActive = true;
+		}
+	}
+
+	m_logEntryTableModel->setFilter(logLevelFilter, moduleNameFilter, threadIDFilter);
 }
 
 void LogTabUI::saveAllEntriesToFile()
@@ -310,7 +345,16 @@ void LogTabUI::saveToFile(const SaveMode saveMode)
 		return;
 	}
 
-	int entryRows = m_logEntryTableModel->rowCount();
+	int entryRows;
+
+	if (saveMode == SaveMode::SaveAllEntries)
+	{
+		entryRows = m_logEntryTableModel->rowCountUnfiltered();
+	}
+	else if (saveMode == SaveMode::SaveVisibleEntries)
+	{
+		entryRows = m_logEntryTableModel->rowCount();
+	}
 
 	m_ui.progressBarSavingToFile->setRange(0, entryRows - 1);
 	m_ui.progressBarSavingToFile->setValue(0);
@@ -323,7 +367,7 @@ void LogTabUI::saveToFile(const SaveMode saveMode)
 	{
 		for (int i = 0; i < entryRows; ++i)
 		{
-			file << m_logEntryTableModel->getCompiledLogEntry(i);
+			file << m_logEntryTableModel->getCompiledLogEntryUnfiltered(i);
 			m_ui.progressBarSavingToFile->setValue(i);
 		}
 		break;
@@ -332,10 +376,7 @@ void LogTabUI::saveToFile(const SaveMode saveMode)
 	{
 		for (int i = 0; i < entryRows; ++i)
 		{
-			if (!m_ui.entriesTableView->isRowHidden(i))
-			{
-				file << m_logEntryTableModel->getCompiledLogEntry(i);
-			}
+			file << m_logEntryTableModel->getCompiledLogEntry(i);
 			m_ui.progressBarSavingToFile->setValue(i);
 		}
 		break;
@@ -451,7 +492,7 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 
 	for (int i = first; i <= last; ++i)
 	{
-		const auto& entry = m_logEntryTableModel->getLogEntry(i);
+		const auto& entry = m_logEntryTableModel->getLogEntryUnfiltered(i);
 		const QString& moduleName = entry.getModuleNameQString();
 		const QString& threadID = entry.getThreadIDQString();
 
@@ -504,65 +545,4 @@ void LogTabUI::updateFilterComboBoxes(const int first, const int last)
 
 	m_ui.moduleNameComboBox->view()->setMinimumWidth(m_moduleNameWidth + 45);
 	m_ui.threadIDComboBox->view()->setMinimumWidth(m_threadIDWidth + 45);
-}
-
-void LogTabUI::partiallyFilterEntriesTable(const int first, const int last)
-{
-	QHash<QString, bool> moduleNameFilter;
-	QHash<QString, bool> threadIDFilter;
-	QHash<QString, bool> logLevelFilter;
-
-	m_logLevelFilerActive = false;
-	m_moduleNameFilerActive = false;
-	m_threadIDFilterActive = false;
-
-	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
-	{
-		if (m_moduleNameComboBoxModel->item(i)->checkState() == Qt::Checked)
-		{
-			moduleNameFilter.insert(m_moduleNameComboBoxModel->item(i)->text(), true);
-		}
-		else
-		{
-			m_moduleNameFilerActive = true;
-		}
-	}
-
-	for (int i = 1; i < m_threadIDComboBoxModel->rowCount(); ++i)
-	{
-		if (m_threadIDComboBoxModel->item(i)->checkState() == Qt::Checked)
-		{
-			threadIDFilter.insert(m_threadIDComboBoxModel->item(i)->text(), true);
-		}
-		else
-		{
-			m_threadIDFilterActive = true;
-		}
-	}
-
-	for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
-	{
-		if (m_logLevelComboBoxModel->item(i)->checkState() == Qt::Checked)
-		{
-			logLevelFilter.insert(m_logLevelComboBoxModel->item(i)->text(), true);
-		}
-		else
-		{
-			m_logLevelFilerActive = true;
-		}
-	}
-
-	for (int i = first; i <= last; ++i)
-	{
-		const auto& entry = m_logEntryTableModel->getLogEntry(i);
-
-		if (logLevelFilter.contains(entry.getLogLevelQString()) && moduleNameFilter.contains(entry.getModuleNameQString()) && threadIDFilter.contains(entry.getThreadIDQString()))
-		{
-			m_ui.entriesTableView->setRowHidden(i, false);
-		}
-		else
-		{
-			m_ui.entriesTableView->setRowHidden(i, true);
-		}
-	}
 }

@@ -8,7 +8,7 @@ LogEntryTableModel::LogEntryTableModel(QObject* parent)
 
 int LogEntryTableModel::rowCount(const QModelIndex& parent) const
 {
-	return m_rawModelData.size();
+	return m_filteredModelData.size();
 }
 
 int LogEntryTableModel::columnCount(const QModelIndex& parent) const
@@ -22,14 +22,14 @@ QVariant LogEntryTableModel::data(const QModelIndex& index, int role) const
 	int row = index.row();
 	int size = m_rawModelData.size();
 
-	auto& entry = m_rawModelData[row];
+	auto& entry = m_rawModelData[m_filteredModelData[row]];
 
 	if (role == Qt::DisplayRole)
 	{
 		switch (column)
 		{
 		case m_lineNumberColumn:
-			return QString::number(row + 1);
+			return QString::number(m_filteredModelData[row] + 1);
 		case m_timeStampColumn:
 			return entry->getTimeStampQString();
 		case m_logLevelColumn:
@@ -54,21 +54,14 @@ QVariant LogEntryTableModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-void LogEntryTableModel::clear()
-{
-	beginResetModel();
-	m_rawModelData.clear();
-	endResetModel();
-}
-
 const std::string& LogEntryTableModel::getCompiledLogEntry(const int row) const
 {
-	return m_rawModelData[row]->getCompiledLogEntry();
+	return m_rawModelData[m_filteredModelData[row]]->getCompiledLogEntry();
 }
 
 const QtLogEntry& LogEntryTableModel::getLogEntry(const int row) const
 {
-	return *m_rawModelData[row];
+	return *m_rawModelData[m_filteredModelData[row]];
 }
 
 void LogEntryTableModel::appendRows(const std::vector<std::shared_ptr<QtLogEntry>>& logEntries)
@@ -81,14 +74,14 @@ void LogEntryTableModel::appendRows(const std::vector<std::shared_ptr<QtLogEntry
 		increaseContainerSize(rows + logEntries.size() + 150);
 	}
 
-	beginInsertRows(QModelIndex(), rows, rows + logEntries.size() - 1);
-
 	for (const auto& entry : logEntries)
 	{
 		m_rawModelData.push_back(entry);
 	}
 
-	endInsertRows();
+	partiallyFilter(rows, rows + logEntries.size() - 1);
+
+	emit rowsAppendedUnfiltered(rows, rows + logEntries.size() - 1);
 }
 
 QVariant LogEntryTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -120,7 +113,74 @@ QVariant LogEntryTableModel::headerData(int section, Qt::Orientation orientation
 	return QVariant();
 }
 
+void LogEntryTableModel::setFilter(const QHash<QString, bool>& logLevelFilter, const QHash<QString, bool>& moduleNameFilter, const QHash<QString, bool>& threadIDFilter)
+{
+	m_logLevelFilter = logLevelFilter;
+	m_moduleNameFilter = moduleNameFilter;
+	m_threadIDFilter = threadIDFilter;
+
+	if (m_logLevelFilter.empty() && m_moduleNameFilter.empty() && m_threadIDFilter.empty())
+	{
+		m_noFilter = true;
+	}
+	else
+	{
+		m_noFilter = false;
+	}
+
+	m_filteredModelData.clear();
+	partiallyFilter(0, m_rawModelData.size() - 1);
+}
+
+void LogEntryTableModel::clearFilter()
+{
+	setFilter({}, {}, {});
+}
+
+int LogEntryTableModel::rowCountUnfiltered() const
+{
+	return m_rawModelData.size();
+}
+
+const std::string& LogEntryTableModel::getCompiledLogEntryUnfiltered(const int row) const
+{
+	return m_rawModelData[row]->getCompiledLogEntry();
+}
+
+const QtLogEntry& LogEntryTableModel::getLogEntryUnfiltered(const int row) const
+{
+	return *m_rawModelData[row];
+}
+
 void LogEntryTableModel::increaseContainerSize(const int newSize)
 {
 	m_rawModelData.reserve(newSize);
+	m_filteredModelData.reserve(newSize);
+}
+
+void LogEntryTableModel::partiallyFilter(const int first, const int last)
+{
+	beginResetModel();
+
+	if (m_noFilter)
+	{
+		for (int i = first; i <= last; ++i)
+		{
+			m_filteredModelData.push_back(i);
+		}
+	}
+	else
+	{
+		for (int i = first; i <= last; ++i)
+		{
+			const auto& entry = *m_rawModelData[i];
+
+			if (m_logLevelFilter.contains(entry.getLogLevelQString()) && m_moduleNameFilter.contains(entry.getModuleNameQString()) && m_threadIDFilter.contains(entry.getThreadIDQString()))
+			{
+				m_filteredModelData.push_back(i);
+			}
+		}
+	}
+
+	endResetModel();
 }

@@ -32,8 +32,6 @@ private Q_SLOT:
 
 	void saveFilter();
 
-	void updateFilterComboBoxesAndFilterEntriesTable(const QModelIndex& parent, int first, int last);
-
 	void filterEntriesTable();
 
 	void saveAllEntriesToFile();
@@ -52,8 +50,6 @@ private:
 	void setUpFilterComboBoxes();
 
 	void updateFilterComboBoxes(const int first, const int last);
-
-	void partiallyFilterEntriesTable(const int first, const int last);
 
 	Ui::LogTabUI m_ui;
 	SourceType m_sourceType;
