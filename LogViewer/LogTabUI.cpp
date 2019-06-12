@@ -17,7 +17,6 @@ LogTabUI::LogTabUI(QWidget* parent, const SourceType sourceType, const std::stri
 	m_ui.setupUi(this);
 	setUpTableViewModel();
 	setUpSourceTypeAndStatusLabel();
-	setSaveToFileElementsVisible(false);
 	setUpFilterComboBoxes();
 
 	connect(m_ui.clearFilterPushButton, &QPushButton::clicked, this, &LogTabUI::clearFilter);
@@ -345,45 +344,25 @@ void LogTabUI::saveToFile(const SaveMode saveMode)
 		return;
 	}
 
-	int entryRows;
-
-	if (saveMode == SaveMode::SaveAllEntries)
-	{
-		entryRows = m_logEntryTableModel->rowCountUnfiltered();
-	}
-	else if (saveMode == SaveMode::SaveVisibleEntries)
-	{
-		entryRows = m_logEntryTableModel->rowCount();
-	}
-
-	m_ui.progressBarSavingToFile->setRange(0, entryRows - 1);
-	m_ui.progressBarSavingToFile->setValue(0);
-
-	setSaveToFileElementsVisible(true);
-
 	switch (saveMode)
 	{
 	case SaveMode::SaveAllEntries:
 	{
-		for (int i = 0; i < entryRows; ++i)
+		for (int i = 0; i < m_logEntryTableModel->rowCountUnfiltered(); ++i)
 		{
 			file << m_logEntryTableModel->getCompiledLogEntryUnfiltered(i);
-			m_ui.progressBarSavingToFile->setValue(i);
 		}
 		break;
 	}
 	case SaveMode::SaveVisibleEntries:
 	{
-		for (int i = 0; i < entryRows; ++i)
+		for (int i = 0; i < m_logEntryTableModel->rowCount(); ++i)
 		{
 			file << m_logEntryTableModel->getCompiledLogEntry(i);
-			m_ui.progressBarSavingToFile->setValue(i);
 		}
 		break;
 	}
 	}
-
-	setSaveToFileElementsVisible(false);
 }
 
 void LogTabUI::setUpTableViewModel()
@@ -425,12 +404,6 @@ void LogTabUI::setUpSourceTypeAndStatusLabel()
 
 	m_ui.labelSourceTypeText->setText(sourceType);
 	m_ui.labelSourceStatusText->setText(sourceStatus);
-}
-
-void LogTabUI::setSaveToFileElementsVisible(const bool visible)
-{
-	m_ui.labelSavingToFile->setVisible(visible);
-	m_ui.progressBarSavingToFile->setVisible(visible);
 }
 
 void LogTabUI::setUpFilterComboBoxes()

@@ -45,8 +45,6 @@ private:
 
 	void setUpSourceTypeAndStatusLabel();
 
-	void setSaveToFileElementsVisible(const bool visible);
-
 	void setUpFilterComboBoxes();
 
 	void updateFilterComboBoxes(const int first, const int last);
