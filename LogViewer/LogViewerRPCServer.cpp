@@ -46,9 +46,6 @@ LogViewerRPCServer::LogViewerRPCServer(const std::shared_ptr<SourceProcessor>& s
 {
 	sourceProcessorAnonymous = sourceProcessor;
 
-	m_localRPCConnection.enable();
-	m_networkRPCConnection.enable();
-
 	registerServer();
 
 	m_thread = std::thread(&LogViewerRPCServer::threadWorkFunction, this);

@@ -22,6 +22,9 @@ MainWindowUI::MainWindowUI(QWidget *parent)
 	m_sourceProcessor = std::shared_ptr<SourceProcessor>(new SourceProcessor(this));
 	m_rpcServer = std::shared_ptr<LogViewerRPCServer>(new LogViewerRPCServer(m_sourceProcessor));
 	m_logFileLoader = std::shared_ptr<LogFileLoader>(new LogFileLoader(m_sourceProcessor));
+
+	m_rpcServer->enableLocalRPCConnection();
+	m_rpcServer->enableNetworkRPCConnection();
 }
 
 void MainWindowUI::openSource(const int sourceID, const std::shared_ptr<std::string>& sourceName, const SourceType sourceType)
