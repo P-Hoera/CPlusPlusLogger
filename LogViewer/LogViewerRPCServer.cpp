@@ -46,83 +46,10 @@ LogViewerRPCServer::LogViewerRPCServer(const std::shared_ptr<SourceProcessor>& s
 {
 	sourceProcessorAnonymous = sourceProcessor;
 
-	RPC_STATUS status;
+	m_localRPCConnection.enable();
+	m_networkRPCConnection.enable();
 
-	char protocol[] = "ncalrpc";
-	char protocol2[] = "ncacn_ip_tcp";
-
-	status = RpcServerUseProtseq(reinterpret_cast<unsigned char*>(protocol), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, NULL);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	status = RpcServerUseProtseq(reinterpret_cast<unsigned char*>(protocol2), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, NULL);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	RPC_BINDING_VECTOR* bindingVector;
-
-	status = RpcServerInqBindings(&bindingVector);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	status = RpcEpRegisterNoReplace(LogViewerRPCInterface_v1_0_s_ifspec, bindingVector, NULL, NULL);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	status = RpcBindingVectorFree(&bindingVector);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	status = RpcServerRegisterIf2(LogViewerRPCInterface_v1_0_s_ifspec, NULL, NULL, RPC_IF_ALLOW_CALLBACKS_WITH_NO_AUTH, RPC_C_LISTEN_MAX_CALLS_DEFAULT, (unsigned)-1, SecurityCallback);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-/*
-	char protocol[] = "ncalrpc"; // ncacn_ip_tcp
-	char port[] = "4747";
-
-	status = RpcServerUseProtseqEp( reinterpret_cast<unsigned char*>(protocol), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, reinterpret_cast<unsigned char*>(port), NULL);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	char protocol2[] = "ncacn_ip_tcp";
-	char port2[] = "4748";
-
-	status = RpcServerUseProtseqEp(reinterpret_cast<unsigned char*>(protocol2), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, reinterpret_cast<unsigned char*>(port2), NULL);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	status = RpcServerRegisterIf2(LogViewerRPCInterface_v1_0_s_ifspec, NULL, NULL, RPC_IF_ALLOW_CALLBACKS_WITH_NO_AUTH, RPC_C_LISTEN_MAX_CALLS_DEFAULT, (unsigned)-1, SecurityCallback);
-
-	if (status)
-	{
-		throw std::runtime_error("Server startup failed");
-	}
-
-	*/
+	registerServer();
 
 	m_thread = std::thread(&LogViewerRPCServer::threadWorkFunction, this);
 }
@@ -134,9 +61,49 @@ LogViewerRPCServer::~LogViewerRPCServer()
 	sourceProcessorAnonymous.reset();
 }
 
+void LogViewerRPCServer::enableLocalRPCConnection()
+{
+	m_localRPCConnection.enable();
+}
+
+void LogViewerRPCServer::disableLocalRPCConnection()
+{
+	m_localRPCConnection.disable();
+}
+
+bool LogViewerRPCServer::localRPCConnectionIsEnabled()
+{
+	return m_localRPCConnection.isEnabled();
+}
+
+void LogViewerRPCServer::enableNetworkRPCConnection()
+{
+	m_networkRPCConnection.enable();
+}
+
+void LogViewerRPCServer::disableNetworkRPCConnection()
+{
+	m_networkRPCConnection.disable();
+}
+
+bool LogViewerRPCServer::networkRPCConnectionIsEnabled()
+{
+	return m_networkRPCConnection.isEnabled();
+}
+
 void LogViewerRPCServer::threadWorkFunction()
 {
 	RpcServerListen(1, RPC_C_LISTEN_MAX_CALLS_DEFAULT, FALSE);
+}
+
+void LogViewerRPCServer::registerServer()
+{
+	RPC_STATUS status = RpcServerRegisterIf2(LogViewerRPCInterface_v1_0_s_ifspec, NULL, NULL, RPC_IF_ALLOW_CALLBACKS_WITH_NO_AUTH, RPC_C_LISTEN_MAX_CALLS_DEFAULT, (unsigned)-1, SecurityCallback);
+
+	if (status)
+	{
+		throw std::runtime_error("Server startup failed");
+	}
 }
 
 void* __RPC_USER midl_user_allocate(size_t size)
