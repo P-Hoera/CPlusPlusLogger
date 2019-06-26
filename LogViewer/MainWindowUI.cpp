@@ -1,6 +1,7 @@
 #include "MainWindowUI.h"
 
 #include "LogTabUI.h"
+#include "RPCServerCore.h"
 
 #include <qfiledialog.h>
 #include <qmessagebox.h>
@@ -20,11 +21,17 @@ MainWindowUI::MainWindowUI(QWidget *parent)
 	connect(this, &MainWindowUI::closeSourceSignal, this, &MainWindowUI::closeSourceSlot, Qt::QueuedConnection);
 
 	m_sourceProcessor = std::shared_ptr<SourceProcessor>(new SourceProcessor(this));
-	m_rpcServer = std::shared_ptr<LogViewerRPCServer>(new LogViewerRPCServer(m_sourceProcessor));
 	m_logFileLoader = std::shared_ptr<LogFileLoader>(new LogFileLoader(m_sourceProcessor));
 
-	m_rpcServer->enableLocalRPCConnection();
-	m_rpcServer->enableNetworkRPCConnection();
+	RPCServerCore::initializeCore(m_sourceProcessor);
+	RPCServerCore::initializeServer(RPCServerCore::ServerType::LogViewerRPCServer);
+	RPCServerCore::enableProtocol(RPCServerCore::ServerType::LogViewerRPCServer, RPCServerCore::ProtocolType::Local);
+	RPCServerCore::enableProtocol(RPCServerCore::ServerType::LogViewerRPCServer, RPCServerCore::ProtocolType::Network);
+}
+
+MainWindowUI::~MainWindowUI()
+{
+	RPCServerCore::shutDownCore();
 }
 
 void MainWindowUI::openSource(const int sourceID, const std::shared_ptr<std::string>& sourceName, const SourceType sourceType)

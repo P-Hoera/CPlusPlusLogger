@@ -47,14 +47,11 @@ LogViewerRPCServer::LogViewerRPCServer(const std::shared_ptr<SourceProcessor>& s
 	sourceProcessorAnonymous = sourceProcessor;
 
 	registerServer();
-
-	m_thread = std::thread(&LogViewerRPCServer::threadWorkFunction, this);
 }
 
 LogViewerRPCServer::~LogViewerRPCServer()
 {
-	RpcMgmtStopServerListening(NULL);
-	m_thread.join();
+	RpcServerUnregisterIf(LogViewerRPCInterface_v1_0_s_ifspec, NULL, TRUE);
 	sourceProcessorAnonymous.reset();
 }
 
@@ -88,11 +85,6 @@ bool LogViewerRPCServer::networkRPCConnectionIsEnabled()
 	return m_networkRPCConnection.isEnabled();
 }
 
-void LogViewerRPCServer::threadWorkFunction()
-{
-	RpcServerListen(1, RPC_C_LISTEN_MAX_CALLS_DEFAULT, FALSE);
-}
-
 void LogViewerRPCServer::registerServer()
 {
 	RPC_STATUS status = RpcServerRegisterIf2(LogViewerRPCInterface_v1_0_s_ifspec, NULL, NULL, RPC_IF_ALLOW_CALLBACKS_WITH_NO_AUTH, RPC_C_LISTEN_MAX_CALLS_DEFAULT, (unsigned)-1, SecurityCallback);
@@ -102,14 +94,3 @@ void LogViewerRPCServer::registerServer()
 		throw std::runtime_error("Server startup failed");
 	}
 }
-
-void* __RPC_USER midl_user_allocate(size_t size)
-{
-	return new char[size];
-}
-
-void __RPC_USER midl_user_free(void* p)
-{
-	delete[] reinterpret_cast<char*>(p);
-}
-

@@ -3,13 +3,11 @@
 #include "SourceProcessor.h"
 #include "LogViewerRPCServerConnection.h"
 
-#include <thread>
-
 class LogViewerRPCServer
 {
-public:
-	LogViewerRPCServer(const std::shared_ptr<SourceProcessor>& sourceProcessor);
+	friend class RPCServerCore;
 
+public:
 	~LogViewerRPCServer();
 
 	void enableLocalRPCConnection();
@@ -25,11 +23,10 @@ public:
 	bool networkRPCConnectionIsEnabled();
 
 private:
-	void threadWorkFunction();
+	LogViewerRPCServer(const std::shared_ptr<SourceProcessor>& sourceProcessor);
 
 	void registerServer();
 
 	LogViewerRPCServerConnection m_localRPCConnection{"ncalrpc"};
 	LogViewerRPCServerConnection m_networkRPCConnection{"ncacn_ip_tcp"};
-	std::thread m_thread; //!< The thread used for the work function.
 };

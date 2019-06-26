@@ -135,6 +135,7 @@ XCOPY "$(QTDIR)\bin\Qt5Widgets.dll" "$(SolutionDir)LoggerTools\" /c /q /y</Comma
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindowUI.cpp" />
     <ClCompile Include="QtLogEntry.cpp" />
+    <ClCompile Include="RPCServerCore.cpp" />
     <ClCompile Include="SourceProcessor.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +165,7 @@ XCOPY "$(QTDIR)\bin\Qt5Widgets.dll" "$(SolutionDir)LoggerTools\" /c /q /y</Comma
     <ClInclude Include="LogViewerRPCServer.h" />
     <ClInclude Include="LogViewerRPCServerConnection.h" />
     <ClInclude Include="QtLogEntry.h" />
+    <ClInclude Include="RPCServerCore.h" />
     <ClInclude Include="SaveMode.h" />
     <ClInclude Include="SourceProcessor.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>

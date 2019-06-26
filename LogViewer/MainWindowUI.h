@@ -6,7 +6,6 @@
 #include "SourceType.h"
 #include "UIConnectionInterface.h"
 #include "SourceProcessor.h"
-#include "LogViewerRPCServer.h"
 #include "LogFileLoader.h"
 
 class MainWindowUI : public QMainWindow, public UIConnectionInterface
@@ -28,6 +27,8 @@ class MainWindowUI : public QMainWindow, public UIConnectionInterface
 
 public:
 	MainWindowUI(QWidget *parent = Q_NULLPTR);
+
+	~MainWindowUI();
 
 	virtual void openSource(const int sourceID, const std::shared_ptr<std::string>& sourceName, const SourceType sourceType) override;
 
@@ -74,6 +75,5 @@ private:
 	std::map<int, EntriesToAdd> m_entriesToAddMap;
 
 	std::shared_ptr<SourceProcessor> m_sourceProcessor;
-	std::shared_ptr<LogViewerRPCServer> m_rpcServer;
 	std::shared_ptr<LogFileLoader> m_logFileLoader;
 };
