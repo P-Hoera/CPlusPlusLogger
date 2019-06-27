@@ -3,12 +3,12 @@
 #include <string>
 #include "LogViewerRPCInterface.h"
 
-class LogViewerRPCServerConnection
+class RPCServerConnection
 {
 public:
-	LogViewerRPCServerConnection(const std::string& protocol);
+	RPCServerConnection(const std::string& protocol, const RPC_IF_HANDLE& serverIfSpec);
 
-	~LogViewerRPCServerConnection();
+	~RPCServerConnection();
 
 	bool isEnabled();
 
@@ -24,4 +24,5 @@ private:
 	bool m_isEnabled = false;
 	RPC_BINDING_VECTOR* m_bindingVector = nullptr;
 	std::string m_protocol;
+	RPC_IF_HANDLE m_serverIfSpec;
 };

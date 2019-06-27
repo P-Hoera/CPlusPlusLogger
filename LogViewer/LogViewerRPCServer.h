@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SourceProcessor.h"
-#include "LogViewerRPCServerConnection.h"
+#include "RPCServerConnection.h"
 
 class LogViewerRPCServer
 {
@@ -27,6 +27,6 @@ private:
 
 	void registerServer();
 
-	LogViewerRPCServerConnection m_localRPCConnection{"ncalrpc"};
-	LogViewerRPCServerConnection m_networkRPCConnection{"ncacn_ip_tcp"};
+	RPCServerConnection m_localRPCConnection{"ncalrpc", LogViewerRPCInterface_v1_0_s_ifspec };
+	RPCServerConnection m_networkRPCConnection{"ncacn_ip_tcp", LogViewerRPCInterface_v1_0_s_ifspec };
 };

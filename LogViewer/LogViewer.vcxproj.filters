@@ -60,10 +60,10 @@
     <ClCompile Include="LogLevelQColor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LogViewerRPCServerConnection.cpp">
+    <ClCompile Include="RPCServerCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RPCServerCore.cpp">
+    <ClCompile Include="RPCServerConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,10 +119,10 @@
     <ClInclude Include="LogLevelQColor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LogViewerRPCServerConnection.h">
+    <ClInclude Include="RPCServerCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RPCServerCore.h">
+    <ClInclude Include="RPCServerConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

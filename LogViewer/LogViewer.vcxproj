@@ -131,7 +131,7 @@ XCOPY "$(QTDIR)\bin\Qt5Widgets.dll" "$(SolutionDir)LoggerTools\" /c /q /y</Comma
     <ClCompile Include="LogTabUI.cpp" />
     <ClCompile Include="LogViewerRPCInterfaceServer.cpp" />
     <ClCompile Include="LogViewerRPCServer.cpp" />
-    <ClCompile Include="LogViewerRPCServerConnection.cpp" />
+    <ClCompile Include="RPCServerConnection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindowUI.cpp" />
     <ClCompile Include="QtLogEntry.cpp" />
@@ -163,7 +163,7 @@ XCOPY "$(QTDIR)\bin\Qt5Widgets.dll" "$(SolutionDir)LoggerTools\" /c /q /y</Comma
     <ClInclude Include="LogLevelQColor.h" />
     <ClInclude Include="LogViewerRPCInterface.h" />
     <ClInclude Include="LogViewerRPCServer.h" />
-    <ClInclude Include="LogViewerRPCServerConnection.h" />
+    <ClInclude Include="RPCServerConnection.h" />
     <ClInclude Include="QtLogEntry.h" />
     <ClInclude Include="RPCServerCore.h" />
     <ClInclude Include="SaveMode.h" />

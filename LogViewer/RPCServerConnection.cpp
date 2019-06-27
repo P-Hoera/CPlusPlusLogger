@@ -1,33 +1,33 @@
-#include "LogViewerRPCServerConnection.h"
+#include "RPCServerConnection.h"
 
 #include <stdexcept>
 #include <memory>
 
-LogViewerRPCServerConnection::LogViewerRPCServerConnection(const std::string& protocol)
-	:m_protocol(protocol)
+RPCServerConnection::RPCServerConnection(const std::string& protocol, const RPC_IF_HANDLE& serverIfSpec)
+	:m_protocol(protocol), m_serverIfSpec(serverIfSpec)
 {
 	addProtocol();
 	processBindingVector();
 }
 
-LogViewerRPCServerConnection::~LogViewerRPCServerConnection()
+RPCServerConnection::~RPCServerConnection()
 {
 	RpcBindingVectorFree(&m_bindingVector);
 }
 
-bool LogViewerRPCServerConnection::isEnabled()
+bool RPCServerConnection::isEnabled()
 {
 	return m_isEnabled;
 }
 
-void LogViewerRPCServerConnection::enable()
+void RPCServerConnection::enable()
 {
 	if (m_isEnabled)
 	{
 		return;
 	}
 
-	RPC_STATUS status = RpcEpRegisterNoReplace(LogViewerRPCInterface_v1_0_s_ifspec, m_bindingVector, NULL, NULL);
+	RPC_STATUS status = RpcEpRegisterNoReplace(m_serverIfSpec, m_bindingVector, NULL, NULL);
 
 	if (status)
 	{
@@ -37,14 +37,14 @@ void LogViewerRPCServerConnection::enable()
 	m_isEnabled = true;
 }
 
-void LogViewerRPCServerConnection::disable()
+void RPCServerConnection::disable()
 {
 	if (!m_isEnabled)
 	{
 		return;
 	}
 
-	RPC_STATUS status = RpcEpUnregister(LogViewerRPCInterface_v1_0_s_ifspec, m_bindingVector, NULL);
+	RPC_STATUS status = RpcEpUnregister(m_serverIfSpec, m_bindingVector, NULL);
 
 	if (status)
 	{
@@ -54,7 +54,7 @@ void LogViewerRPCServerConnection::disable()
 	m_isEnabled = false;
 }
 
-void LogViewerRPCServerConnection::addProtocol()
+void RPCServerConnection::addProtocol()
 {
 	std::unique_ptr<unsigned char> protocol((new unsigned char[m_protocol.length() + 1]));
 
@@ -68,7 +68,7 @@ void LogViewerRPCServerConnection::addProtocol()
 	}
 }
 
-void LogViewerRPCServerConnection::processBindingVector()
+void RPCServerConnection::processBindingVector()
 {
 	RPC_STATUS status = RpcServerInqBindings(&m_bindingVector);
 
