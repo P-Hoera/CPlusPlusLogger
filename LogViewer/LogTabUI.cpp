@@ -1,13 +1,11 @@
 #include "LogTabUI.h"
 
 #include "LogLevelQColor.h"
+#include "FilterFile.h"
 
 #include <qfiledialog.h>
 #include <qmessagebox.h>
 #include <qthread.h>
-#include <qjsondocument.h>
-#include <qjsonarray.h>
-#include <qjsonobject.h>
 #include <qhash.h>
 #include <fstream>
 
@@ -89,144 +87,106 @@ void LogTabUI::clearFilter()
 
 void LogTabUI::loadFilter()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "Please choose filter File to load.", QString(), "JSON file (*.json)");
+	FilterFile filterFile;
 
-	QFile file(fileName);
-
-	file.open(QIODevice::ReadOnly);
-
-	QByteArray data = file.readAll();
-
-	QJsonDocument jsonDocument = QJsonDocument::fromJson(data);
-
-	QJsonObject rootObject = jsonDocument.object();
-
-	int fileVersion;
-
-	if (rootObject.contains("Version"))
+	try
 	{
-		fileVersion = rootObject["Version"].toInt(-1);
+		filterFile.load();
+	}
+	catch (const std::invalid_argument& exception)
+	{
+		QMessageBox::critical(this, "Error on loading Filter File.", exception.what());
 	}
 
-	QJsonObject logLevelObject;
-
-	if (rootObject.contains("LogLevel") && rootObject["LogLevel"].isObject())
+	if(!filterFile.containsFilterData())
 	{
-		logLevelObject = rootObject["LogLevel"].toObject();
+		return;
 	}
 
-	std::vector<std::pair<QString, bool>> logLevelData;
-
-	for (const auto& entry : logLevelObject.keys())
-	{
-		if (logLevelObject[entry].isBool())
-		{
-			bool visibility = logLevelObject[entry].toBool();
-			logLevelData.push_back({ entry, visibility });
-		}
-	}
-
-	QJsonObject moduleNameObject;
-
-	if (rootObject.contains("ModuleName") && rootObject["ModuleName"].isObject())
-	{
-		moduleNameObject = rootObject["ModuleName"].toObject();
-	}
-
-	std::vector<std::pair<QString, bool>> moduleNameData;
-
-	for (const auto& entry : moduleNameObject.keys())
-	{
-		if (moduleNameObject[entry].isBool())
-		{
-			bool visibility = moduleNameObject[entry].toBool();
-			moduleNameData.push_back({ entry, visibility });
-		}
-	}
-
-	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
-	{
-		m_moduleNameComboBoxModel->item(i)->setData(Qt::Unchecked, Qt::CheckStateRole);
-	}
-
-	for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
-	{
-		m_logLevelComboBoxModel->item(i)->setData(Qt::Unchecked, Qt::CheckStateRole);
-	}
-
-	for (const auto& entry : logLevelData)
+	if(filterFile.containsLogLevelData())
 	{
 		for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
 		{
-			if (entry.first == m_logLevelComboBoxModel->item(i)->text())
+			m_logLevelComboBoxModel->item(i)->setData(Qt::Unchecked, Qt::CheckStateRole);
+		}
+
+		std::vector<std::pair<QString, bool>> logLevelData = filterFile.getLogLevelFilterData();
+
+		for (const auto& entry : logLevelData)
+		{
+			for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
 			{
-				if (entry.second)
+				if (entry.first == m_logLevelComboBoxModel->item(i)->text())
 				{
-					m_logLevelComboBoxModel->item(i)->setData(Qt::Checked, Qt::CheckStateRole);
+					if (entry.second)
+					{
+						m_logLevelComboBoxModel->item(i)->setData(Qt::Checked, Qt::CheckStateRole);
+					}
 				}
 			}
 		}
 	}
 
-	for (const auto& entry : moduleNameData)
+	if (filterFile.containsModuleNameData())
 	{
-		bool found = false;
-
 		for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
 		{
-			if (entry.first == m_moduleNameComboBoxModel->item(i)->text())
-			{
-				if (entry.second)
-				{
-					m_moduleNameComboBoxModel->item(i)->setData(Qt::Checked, Qt::CheckStateRole);
-				}
+			m_moduleNameComboBoxModel->item(i)->setData(Qt::Unchecked, Qt::CheckStateRole);
+		}
 
-				found = true;
-				break;
+		std::vector<std::pair<QString, bool>> moduleNameData = filterFile.getModuleNameFilterData();
+
+		for (const auto& entry : moduleNameData)
+		{
+			bool found = false;
+
+			for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
+			{
+				if (entry.first == m_moduleNameComboBoxModel->item(i)->text())
+				{
+					if (entry.second)
+					{
+						m_moduleNameComboBoxModel->item(i)->setData(Qt::Checked, Qt::CheckStateRole);
+					}
+
+					found = true;
+					break;
+				}
+			}
+
+			if (found)
+			{
+				continue;
+			}
+
+			QStandardItem* item = new QStandardItem(entry.first);
+			item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+			if (entry.second)
+			{
+				item->setData(Qt::Checked, Qt::CheckStateRole);
+			}
+			else
+			{
+				item->setData(Qt::Unchecked, Qt::CheckStateRole);
+			}
+			m_moduleNameComboBoxModel->appendRow(item);
+
+			int newModuleNameWidth = m_ui.moduleNameComboBox->view()->fontMetrics().width(entry.first);
+			if (newModuleNameWidth > m_moduleNameWidth)
+			{
+				m_moduleNameWidth = newModuleNameWidth;
 			}
 		}
 
-		if (found)
-		{
-			continue;
-		}
-
-		QStandardItem* item = new QStandardItem(entry.first);
-		item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		if (entry.second)
-		{
-			item->setData(Qt::Checked, Qt::CheckStateRole);
-		}
-		else
-		{
-			item->setData(Qt::Unchecked, Qt::CheckStateRole);
-		}
-		m_moduleNameComboBoxModel->appendRow(item);
-
-		int newModuleNameWidth = m_ui.moduleNameComboBox->view()->fontMetrics().width(entry.first);
-		if (newModuleNameWidth > m_moduleNameWidth)
-		{
-			m_moduleNameWidth = newModuleNameWidth;
-		}
+		m_ui.moduleNameComboBox->view()->setMinimumWidth(m_moduleNameWidth + 45);
 	}
-
-	m_ui.moduleNameComboBox->view()->setMinimumWidth(m_moduleNameWidth + 45);
 
 	filterEntriesTable();
 }
 
 void LogTabUI::saveFilter()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Please choose File to save to.", QString(), "JSON file (*.json)");
-
-	QFile file(fileName);
-	file.open(QIODevice::WriteOnly);
-
-	QJsonObject rootObject;
-
-	rootObject["Version"] = 1;
-
-	QJsonObject logLevelObject;
+	FilterFile filterFile;
 
 	for (int i = 1; i < m_logLevelComboBoxModel->rowCount(); ++i)
 	{
@@ -240,10 +200,8 @@ void LogTabUI::saveFilter()
 			isChecked = false;
 		}
 
-		logLevelObject[m_logLevelComboBoxModel->item(i)->text()] = isChecked;
+		filterFile.addLogLevelFilter(m_logLevelComboBoxModel->item(i)->text(), isChecked);
 	}
-
-	QJsonObject moduleNameObject;
 
 	for (int i = 1; i < m_moduleNameComboBoxModel->rowCount(); ++i)
 	{
@@ -257,15 +215,17 @@ void LogTabUI::saveFilter()
 			isChecked = false;
 		}
 
-		moduleNameObject[m_moduleNameComboBoxModel->item(i)->text()] = isChecked;
+		filterFile.addModuleNameFilter(m_moduleNameComboBoxModel->item(i)->text(), isChecked);
 	}
 
-	rootObject["LogLevel"] = logLevelObject;
-	rootObject["ModuleName"] = moduleNameObject;
-
-	QJsonDocument jsonDocument(rootObject);
-
-	file.write(jsonDocument.toJson());
+	try
+	{
+		filterFile.save();
+	}
+	catch (const std::invalid_argument& exception)
+	{
+		QMessageBox::critical(this, "Error on saving Filter File.", exception.what());
+	}
 }
 
 void LogTabUI::filterEntriesTable()
